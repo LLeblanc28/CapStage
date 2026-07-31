@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verifier:
+    name: Tests et compilation
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            client/package-lock.json
+
+      - name: Installer les dépendances
+        run: |
+          npm ci
+          npm --prefix client ci
+
+      - name: Tests d'intégration de l'API
+        run: npm test
+
+      - name: Compiler l'interface
+        run: npm run build
+
+      - name: Vérifier que le serveur démarre
+        env:
+          NODE_ENV: production
+          JWT_SECRET: secret-de-test-pour-integration-continue
+          PORT: 3001
+          DATA_DIR: data/ci
+        run: |
+          node server/src/index.js &
+          for i in $(seq 1 20); do
+            if curl -sf http://127.0.0.1:3001/api/health > /dev/null; then
+              curl -s http://127.0.0.1:3001/api/health
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Le serveur n'a pas répondu sur /api/health"
+          exit 1

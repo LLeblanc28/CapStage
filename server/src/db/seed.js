@@ -5,11 +5,10 @@
  *
  *   npm run db:seed
  */
+import path from 'node:path';
 import { applySchema, get, run, transaction } from './index.js';
 import { hashPassword } from '../lib/security.js';
 import { createCv } from '../services/cv.js';
-
-applySchema();
 
 const DEMO_PASSWORD = 'CapStage2026!';
 
@@ -346,6 +345,7 @@ const students = [
 ];
 
 async function seed() {
+  applySchema();
   const hash = await hashPassword(DEMO_PASSWORD);
 
   transaction(() => {
@@ -469,7 +469,12 @@ async function seed() {
   console.log('[capstage] admin : admin@capstage.fr | referent : referent.fulbert@capstage.fr | etudiante : lea.morel@capstage.fr');
 }
 
-seed().catch((err) => {
-  console.error('[capstage] echec du seed :', err);
-  process.exit(1);
-});
+export { seed };
+
+// Execute uniquement en appel direct (`npm run db:seed`), pas a l'import.
+if (process.argv[1] && path.basename(process.argv[1]) === 'seed.js') {
+  seed().catch((err) => {
+    console.error('[capstage] echec du seed :', err);
+    process.exit(1);
+  });
+}

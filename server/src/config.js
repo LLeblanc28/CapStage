@@ -32,6 +32,13 @@ export const config = {
   csrfCookieName: 'capstage_csrf',
   maxPhotoBytes: Number(process.env.MAX_PHOTO_BYTES || 1_500_000),
   platformName: process.env.PLATFORM_NAME || 'CapStage',
+  /**
+   * Insere le jeu de demonstration au demarrage s'il est absent.
+   * Utile sur un hebergement au disque ephemere (vitrine, demonstration).
+   * A laisser a false sur une installation reelle : les comptes de demo
+   * ont un mot de passe public.
+   */
+  seedOnStart: process.env.SEED_ON_START === 'true',
 };
 
 if (config.env === 'production' && config.jwtSecret === 'capstage-dev-secret-change-me') {

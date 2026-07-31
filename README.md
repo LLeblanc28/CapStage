@@ -79,6 +79,26 @@ Comptes de démonstration (mot de passe commun `CapStage2026!`) :
 
 Mise en production : voir [docs/installation.md](docs/installation.md).
 
+## Mise en ligne
+
+CapStage est une application Node.js : elle a besoin d'un serveur qui exécute du code. **GitHub
+Pages ne peut pas l'héberger** — Pages ne sert que des fichiers statiques, sans API, sans base de
+données ni génération de PDF. Trois voies possibles :
+
+| Objectif | Solution | Mise en œuvre |
+| --- | --- | --- |
+| Site public utilisable | Hébergeur Node (Render, Fly.io, Koyeb, VPS) | `render.yaml` fourni : connecter le dépôt, Render lit le blueprint et déploie à chaque push |
+| Conteneur | Docker | `Dockerfile` fourni : `docker build -t capstage . && docker run -p 3001:3001 -v capstage-data:/data -e JWT_SECRET=… capstage` |
+| Démonstration ponctuelle | GitHub Codespaces | Ouvrir le dépôt dans un Codespace, `npm run install:all && npm run db:seed && npm run dev`, puis rendre le port 3001 public |
+
+Le dossier `docs/` peut, lui, être publié sur GitHub Pages (Settings → Pages → source `main` /
+`docs`) : cela met la documentation en ligne, pas l'application.
+
+Variables d'environnement indispensables en production : `NODE_ENV=production`, `JWT_SECRET`
+(chaîne aléatoire d'au moins 32 caractères) et `DATA_DIR` pointant vers un stockage persistant.
+Sans disque persistant, la base SQLite est recréée à chaque redémarrage : mettre alors
+`SEED_ON_START=true` pour disposer du jeu de démonstration.
+
 ## Tests
 
 ```bash
@@ -93,7 +113,7 @@ génération des trois PDF, le suivi des candidatures et des visites, l'annuaire
 - [Installation et exploitation](docs/installation.md)
 - [Documentation technique](docs/documentation-technique.md)
 - [Guide utilisateur](docs/guide-utilisateur.md)
-- [Plan de formation des utilisateurs finaux](docs/plan-formation.md)
+- Plan de formation des utilisateurs finaux — à rédiger
 
 ## Licence
 

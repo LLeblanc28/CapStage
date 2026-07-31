@@ -1,0 +1,5 @@
+# Site de documentation publié par GitHub Pages (source : branche main, dossier /docs).
+title: CapStage
+description: Plateforme de création de CV et de suivi de recherche de stage pour les établissements de formation
+theme: jekyll-theme-minimal
+show_downloads: false

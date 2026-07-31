@@ -1,0 +1,40 @@
+# Déploiement sur Render (https://render.com) — « Blueprint » lu automatiquement
+# lorsque le dépôt GitHub est connecté. Le service est reconstruit à chaque push.
+services:
+  - type: web
+    name: capstage
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    buildCommand: npm ci && npm --prefix client ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      # node:sqlite exige Node 22.5 ou plus récent.
+      - key: NODE_VERSION
+        value: 22.20.0
+      - key: NODE_ENV
+        value: production
+      # Secret de signature des sessions, généré par Render à la création.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PLATFORM_NAME
+        value: CapStage
+      # Le plan gratuit n'a pas de disque persistant : la base est recréée à
+      # chaque redémarrage. On réinsère donc le jeu de démonstration au boot.
+      # Sur une installation réelle : passer à "false" et attacher un disque.
+      - key: SEED_ON_START
+        value: 'true'
+
+    # --- Conservation des données (plan payant) ------------------------------
+    # Décommenter le bloc ci-dessous ET la variable DATA_DIR, puis passer le
+    # plan à "starter" : la base SQLite et les photos survivent aux déploiements.
+    #
+    #   - key: DATA_DIR
+    #     value: /var/data
+    #
+    # disk:
+    #   name: capstage-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
